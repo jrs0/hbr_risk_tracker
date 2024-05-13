@@ -23,8 +23,11 @@ The user interface for the app should have these pages:
     * NHS number    
     * Age
     * Current value of the blood counts/other measurements, with a timestamp for each.
-    * A graph showing the dynamic bleeding risk over time, in the current admission
-*
+    * Graphs showing haemoglobin, platelet count, and eGFR over all time
+    * A graph showing bleeding risk score over time
+    * A grid of discrete ARC HBR risk factors (similar to how the ARC HBR app presents the data).
+
+
 
 
 
