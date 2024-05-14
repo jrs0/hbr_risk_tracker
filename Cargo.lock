@@ -1262,10 +1262,12 @@ dependencies = [
 name = "front"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "dioxus",
  "dioxus-web",
  "log",
  "shared",
+ "uuid",
  "wasm-logger",
 ]
 

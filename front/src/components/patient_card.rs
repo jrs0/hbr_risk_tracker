@@ -2,7 +2,7 @@ use crate::{components::Button, models::ButtonType};
 use dioxus::prelude::*;
 use shared::models::Patient;
 
-#[inline_props]
+#[component]
 pub fn PatientCard<'a>(
     cx: Scope<'a>,
     patient: &'a Patient,
@@ -12,24 +12,18 @@ pub fn PatientCard<'a>(
     cx.render(rsx!(
         li {
             class: "patient-card md:basis-1/4 p-4 rounded box-border bg-neutral-100 drop-shadow-md transition-all ease-in-out hover:drop-shadow-xl flex-col flex justify-start items-stretch animate-fade animate-duration-500 animate-ease-in-out animate-normal animate-fill-both",
-            header {
-                img {
-                    class: "max-h-80 w-auto mx-auto rounded",
-                    src: "{patient.poster}"
-                },
-            }
             section {
                 class: "flex-1",
                 h3 {
                     class: "text-lg font-bold my-3",
-                    "{patient.title}"
+                    "{patient.name}"
                 }
                 p {
-                    "{patient.director}"
+                    "{patient.gender}"
                 }
                 p {
                     class: "text-sm text-gray-500",
-                    "{patient.year.to_string()}"
+                    "{patient.date_of_birth.unwrap().to_string()}"
                 }
             }
             footer {
