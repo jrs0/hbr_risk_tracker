@@ -1,5 +1,7 @@
-use actix_web::{HttpResponse, web::{self, ServiceConfig}};
-
+use actix_web::{
+    web::{self, ServiceConfig},
+    HttpResponse,
+};
 
 pub fn service(cfg: &mut ServiceConfig) {
     cfg.service(
