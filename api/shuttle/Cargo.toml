@@ -10,7 +10,7 @@ shuttle-runtime = "0.45.0"
 tokio = "1.26.0"
 
 # database
-shuttle-shared-db = { version = "0.36.0", features = ["postgres"] }
+shuttle-shared-db = { version = "0.45.0", features = ["postgres", "sqlx"] }
 sqlx = { version = "0.7", default-features = false, features = [
     "tls-native-tls",
     "macros",
