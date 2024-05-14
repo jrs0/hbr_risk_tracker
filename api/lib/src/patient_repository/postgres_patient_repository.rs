@@ -1,5 +1,6 @@
 use super::{PatientRepository, PatientResult};
 use shared::models::{CreatePatient, Patient};
+use chrono::offset::Utc;
 
 pub struct PostgresPatientRepository {
     pool: sqlx::PgPool,
@@ -59,7 +60,7 @@ impl PatientRepository for PostgresPatientRepository {
         sqlx::query_as::<_, Patient>(
             r#"
       UPDATE patients
-      SET name = $2, date_of_birth = $3, gender = $4
+      SET name = $2, date_of_birth = $3, gender = $4, updated_at = $5
       WHERE id = $1
       RETURNING id, name, date_of_birth, gender, created_at, updated_at
       "#,
@@ -67,7 +68,8 @@ impl PatientRepository for PostgresPatientRepository {
         .bind(patient.id)
         .bind(&patient.name)
         .bind(&patient.date_of_birth)
-        .bind(&patient.gender)
+            .bind(&patient.gender)
+            .bind(Utc::now())
         .fetch_one(&self.pool)
         .await
         .map_err(|e| e.to_string())

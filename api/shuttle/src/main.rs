@@ -1,4 +1,7 @@
-use actix_web::web::ServiceConfig;
+use std::path::PathBuf;
+
+use actix_web::web::{self, ServiceConfig};
+use actix_files::Files;
 use shuttle_actix_web::ShuttleActixWeb;
 
 use shuttle_runtime::CustomError;
@@ -16,9 +19,10 @@ async fn main(
     let patient_repository = actix_web::web::Data::new(patient_repository);
 
     let config = move |cfg: &mut ServiceConfig| {
-        cfg.app_data(patient_repository)
+        cfg.service(web::scope("/api").app_data(patient_repository)
             .configure(api_lib::health::service)
-            .configure(api_lib::patients::service::<api_lib::patient_repository::PostgresPatientRepository>);
+            .configure(api_lib::patients::service::<api_lib::patient_repository::PostgresPatientRepository>))
+            .service(Files::new("/", "api/shuttle/static").index_file("index.html"));
     };
 
     Ok(config.into())

@@ -2,7 +2,8 @@ use actix_web::{
     web::{self, ServiceConfig},
     HttpResponse,
 };
-use shared::models::CreatePatient;
+use shared::models::{CreatePatient, Patient};
+use uuid::Uuid;
 
 use crate::patient_repository::PatientRepository;
 
@@ -24,8 +25,14 @@ async fn get_all<R: PatientRepository>(repo: web::Data<R>) -> HttpResponse {
     }
 }
 
-async fn get<R: PatientRepository>() -> HttpResponse {
-    HttpResponse::Ok().finish()
+async fn get<R: PatientRepository>(
+    patient_id: web::Path<Uuid>,
+    repo: web::Data<R>,
+) -> HttpResponse {
+    match repo.get_patient(&patient_id).await {
+        Ok(film) => HttpResponse::Ok().json(film),
+        Err(_) => HttpResponse::NotFound().body("Not found"),
+    }
 }
 
 async fn post<R: PatientRepository>(
@@ -40,10 +47,24 @@ async fn post<R: PatientRepository>(
     }
 }
 
-async fn put<R: PatientRepository>() -> HttpResponse {
-    HttpResponse::Ok().finish()
+async fn put<R: PatientRepository>(
+    patient: web::Json<Patient>,
+    repo: web::Data<R>,
+) -> HttpResponse {
+    match repo.update_patient(&patient).await {
+        Ok(patient) => HttpResponse::Ok().json(patient),
+        Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
+    }
 }
 
-async fn delete<R: PatientRepository>() -> HttpResponse {
-    HttpResponse::Ok().finish()
+async fn delete<R: PatientRepository>(
+    patient_id: web::Path<Uuid>,
+    repo: web::Data<R>,
+) -> HttpResponse {
+    match repo.delete_patient(&patient_id).await {
+        Ok(film) => HttpResponse::Ok().json(film),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
+        }
+    }
 }
