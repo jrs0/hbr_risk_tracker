@@ -11,7 +11,7 @@ pub struct PatientModalProps<'a> {
     on_create_or_update: EventHandler<'a, Patient>,
     on_cancel: EventHandler<'a, MouseEvent>,
     #[props(!optional)]
-    film: Option<Patient>,
+    patient: Option<Patient>,
 }
 
 pub fn PatientModal<'a>(cx: Scope<'a, PatientModalProps>) -> Element<'a> {
@@ -26,6 +26,23 @@ pub fn PatientModal<'a>(cx: Scope<'a, PatientModalProps>) -> Element<'a> {
 	created_at: None,
 	updated_at: None,
     });
+
+    {
+	let draft_patient = draft_patient.clone();
+	use_effect(cx, &cx.props.patient, |patient| async move {
+            match patient {
+		Some(patient) => draft_patient.set(patient),
+		None => draft_patient.set(Patient {
+                    name: "".to_string(),
+                    gender: "".to_string(),
+                    date_of_birth: Some(Utc.with_ymd_and_hms(1995, 1, 1, 0, 0, 0).unwrap()),
+                    id: Uuid::new_v4(),
+                    created_at: None,
+                    updated_at: None,
+		}),
+            }
+	});
+    }
     
     if !is_modal_visible.read().0 {
 	return None;
@@ -55,7 +72,7 @@ pub fn PatientModal<'a>(cx: Scope<'a, PatientModalProps>) -> Element<'a> {
                             class: "w-full border border-gray-300 rounded-lg p-2",
                             "type": "text",
                             placeholder: "Enter patient name",
-			    value: "{draft_patient.get().title}",
+			    value: "{draft_patient.get().name}",
                             oninput: move |evt| {
 				draft_patient.set(Patient {
                                     name: evt.value.clone(),
@@ -74,7 +91,7 @@ pub fn PatientModal<'a>(cx: Scope<'a, PatientModalProps>) -> Element<'a> {
                             class: "w-full border border-gray-300 rounded-lg p-2",
                             "type": "text",
                             placeholder: "Enter patient gender",
-			    value: "{draft_patient.get().director}",
+			    value: "{draft_patient.get().gender}",
                             oninput: move |evt| {
 				draft_patient.set(Patient {
                                     gender: evt.value.clone(),
@@ -91,13 +108,13 @@ pub fn PatientModal<'a>(cx: Scope<'a, PatientModalProps>) -> Element<'a> {
                         }
                         input {
                             class: "w-full border border-gray-300 rounded-lg p-2",
-                            "type": "number",
-                            placeholder: "Enter patient date of birth",
-			    value: "{draft_patient.get().date_of_birth.unwrap().to_string()}",
+                            "type": "date",
+			    value: "{draft_patient.get().date_of_birth_string()}",
                             oninput: move |evt| {
+				let assumed_utc = format!("{0}T00:00:00.000Z", evt.value);
 				draft_patient.set(Patient {
-                                    date_of_birth: evt.value.clone().parse::<,
-                                    ..draft_film.get().clone()
+                                    date_of_birth: Some(DateTime::parse_from_rfc3339(&assumed_utc).unwrap().into()),
+                                    ..draft_patient.get().clone()
 				})
 			    }
                         }
@@ -115,7 +132,15 @@ pub fn PatientModal<'a>(cx: Scope<'a, PatientModalProps>) -> Element<'a> {
                     Button {
                         button_type: ButtonType::Primary,
                         onclick: move |evt| {
-                            cx.props.on_create_or_update.call(evt);
+			    cx.props.on_create_or_update.call(draft_patient.get().clone());
+			    draft_patient.set(Patient {
+				name: "".to_string(),
+				gender: "".to_string(),
+				date_of_birth: Some(Utc.with_ymd_and_hms(1995, 1, 1, 0, 0, 0).unwrap()),
+				id: Uuid::new_v4(),
+				created_at: None,
+				updated_at: None,
+			    });
                         },
                         "Save patient"
                     }

@@ -23,7 +23,7 @@ pub fn PatientCard<'a>(
                 }
                 p {
                     class: "text-sm text-gray-500",
-                    "{patient.date_of_birth.unwrap().to_string()}"
+                    "{patient.date_of_birth_string()}"
                 }
             }
             footer {

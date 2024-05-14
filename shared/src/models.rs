@@ -18,3 +18,13 @@ pub struct CreatePatient {
     pub gender: String,
     pub date_of_birth: Option<chrono::DateTime<chrono::Utc>>,
 }
+
+impl Patient {
+
+    pub fn date_of_birth_string(&self) -> String {
+	match self.date_of_birth {
+	    Some(date_of_birth) => date_of_birth.format("%Y-%m-%d").to_string(),
+	    None => "Not recorded".to_string()
+	}
+    }
+}
