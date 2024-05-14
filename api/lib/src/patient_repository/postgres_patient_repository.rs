@@ -43,8 +43,8 @@ impl PatientRepository for PostgresPatientRepository {
         sqlx::query_as::<_, Patient>(
             r#"
       INSERT INTO patients (name, date_of_birth, gender)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, title, director, year, poster, created_at, updated_at
+      VALUES ($1, $2, $3)
+      RETURNING id, name, date_of_birth, gender, created_at, updated_at
       "#,
         )
         .bind(&create_patient.name)

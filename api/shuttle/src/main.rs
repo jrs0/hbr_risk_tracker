@@ -12,12 +12,13 @@ async fn main(
         .await
         .map_err(CustomError::new)?;
 
-    let pool = actix_web::web::Data::new(pool);
+    let patient_repository = api_lib::patient_repository::PostgresPatientRepository::new(pool);
+    let patient_repository = actix_web::web::Data::new(patient_repository);
 
     let config = move |cfg: &mut ServiceConfig| {
-        cfg.app_data(pool)
+        cfg.app_data(patient_repository)
             .configure(api_lib::health::service)
-            .configure(api_lib::patients::service);
+            .configure(api_lib::patients::service::<api_lib::patient_repository::PostgresPatientRepository>);
     };
 
     Ok(config.into())

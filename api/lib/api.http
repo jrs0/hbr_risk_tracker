@@ -11,10 +11,9 @@ POST :host/v1/patients
 Content-Type: application/json
 
 {
-    "id": ":patient_id",
     "name": "Joe Bloggs",
-    "date_of_birth": "1986-01-08"
     "gender": "male",
+    "date_of_birth": "2012-04-23T18:25:43.511Z"
 }
 
 ### update patient
@@ -30,10 +29,10 @@ Content-Type: application/json
 GET :host/v1/patients
 
 ### get film
-GET :host/v1/films/:patient_id
+GET :host/v1/patients/:patient_id
 
 ### get bad film
-GET :host/v1/films/356e42a8-e659-406f-98
+GET :host/v1/patients/356e42a8-e659-406f-98
 
 ### delete film
-DELETE :host/v1/films/:patient_id
+DELETE :host/v1/patients/:patient_id
