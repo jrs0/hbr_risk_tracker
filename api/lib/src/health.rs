@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, web::{get, ServiceConfig}};
+use actix_web::{HttpResponse, web::{self, ServiceConfig}};
 
 pub const API_VERSION: &str = "v0.0.1";
 
@@ -9,7 +9,7 @@ async fn health() -> HttpResponse {
 }
 
 pub fn service(cfg: &mut ServiceConfig) {
-    cfg.route("/health", get().to(health));
+    cfg.route("/health", web::get().to(health));
 }
 
 #[cfg(test)]

@@ -1,0 +1,39 @@
+# -*- restclient -*-
+
+:host = http://localhost:8000
+:patient_id = 3894ufusdfj
+
+### health
+GET :host/health
+
+### create a patient
+POST :host/v1/patients
+Content-Type: application/json
+
+{
+    "id": ":patient_id",
+    "name": "Joe Bloggs",
+    "date_of_birth": "1986-01-08"
+    "gender": "male",
+}
+
+### update patient
+PUT :host/v1/patients
+Content-Type: application/json
+
+{
+    "id": ":patient_id",
+    "name": "Tom Bloggs",
+}
+
+### get all patients
+GET :host/v1/patients
+
+### get film
+GET :host/v1/films/:patient_id
+
+### get bad film
+GET :host/v1/films/356e42a8-e659-406f-98
+
+### delete film
+DELETE :host/v1/films/:patient_id
