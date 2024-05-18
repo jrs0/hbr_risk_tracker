@@ -8,23 +8,96 @@ NOTE: This prototype version of the program uses no authentication for simplicit
 
 The tables stored in the backend are described below in a generic (database independent) way. 
 
-== Patient Table
+== Patient Identity
 
-The patient table is the root of a tree of information about each patient. One row in this table corresponds to one patient. The following data is stored:
+The `patient` table is the root of a tree of information about each patient. One row in this table corresponds to one patient. The following data is stored:
 
 [cols="1,1,1,1"]
 |===
 |Column name | Description | Type | Nullable
 
-| `id` | Unique identifier for the patient in this system (not the NHS number or trust number) | UUID | No
+| `patient_id` | Unique identifier for the patient in this system (not the NHS number or trust number) | UUID | No
 | `first_name` | Patient's first or given name | String | Yes
 | `last_name` | Patient's last or family name | String | Yes
 | `date_of_birth` | Patient date of birth, to arbitrarily good resolution | Timestamp / datetime with timezone | Yes
 | `gender` | Patient gender, one of 1 (male), 2 (female), 3 (non-binary), 4 (other, not listed), 255 (not stated), NULL (not recorded) (see https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-sets/mental-health-services-data-set/submit-data/data-quality-of-protected-characteristics-and-other-vulnerable-groups/gender-identity[here], Table 3, gender identity as stated by person) | Byte | Yes
 | `nhs_number` | Patient NHS number | String | Yes
-| `trust_number` | Patient trust ID number  | String | Yes
-| `created_at` | Time when this row was created | Timestamp / datetime with timezone | No
-| `updated_at` | Time when this row was last updated | Timestamp / datetime with timezone | No
+| `trust_number` | Patient trust ID number | String | Yes
 |===
 
 NOTE: All these values can vary with time, either due to errors in recording or because they have really changed. This prototype of the program will not track changes or allow comments on the changes; these aspects should be incorporated into a production version of the program.
+
+== Patient Coded History
+
+Patient hospital visits are stored in the `spells` table:
+
+[cols="1,1,1,1"]
+|===
+|Column name | Description | Type | Nullable
+
+| `spell_id` | Unique identifier for the spell in this system | UUID | No
+| `patient_id` | The identifier (`patient` table) of the patient who had the spell | UUID | No
+| `start` | The start date/time of the spell | Timestamp / datetime with timezone | Yes
+| `end` | The end date/time of the spell | Timestamp / datetime with timezone | Yes
+|===
+
+Consultant episodes in the spell are stored in the `episodes` table:
+
+[cols="1,1,1,1"]
+|===
+|Column name | Description | Type | Nullable
+
+| `episode_id` | Unique identifier for the episode in this system | UUID | No
+| `spell_id` | The identifier (`spells`) of the spell containing this episode | UUID | No
+| `start` | The start date/time of the episode | Timestamp / datetime with timezone | Yes
+| `end` | The end date/time of the episode | Timestamp / datetime with timezone | Yes
+|===
+
+Diagnoses and procedures are stored in the `icd10` and `opcs4` tables, which have this schema:
+
+[cols="1,1,1,1"]
+|===
+|Column name | Description | Type | Nullable
+
+| `episode_id` | The identifier (`episodes`) of the episode containing this diagnosis/procedure | UUID | No
+| `code` | The ICD-10/OPCS-4 code, in normal form | String | No
+| `position` | The primary/secondary position of the code: 0 for primary position, > 0 for secondary positions | Byte | Yes
+|===
+
+NOTE: Normal form of an ICD-10 or OPCS-4 code is all-lowercase, with no dot.
+
+Supplementary tables `icd10_docs` and `opcs4_docs` are required for storing the documentation for ICD-10 and OPCS-4 codes:
+
+[cols="1,1,1,1"]
+|===
+|Column name | Description | Type | Nullable
+
+| `code` | The ICD-10/OPCS-4 code, in normal form | String | No
+| `docs` | The description of the code | String | No
+|===
+
+== Patient Observations
+
+Patient observations that can be represented as numbers are stored in the `numerical_observations` table:
+
+[cols="1,1,1,1"]
+|===
+|Column name | Description | Type | Nullable
+
+| `patient_id` | The identifier (`patient` table) of the patient who had the observation | UUID | No
+| `start` | The start date/time of the spell | Timestamp / datetime with timezone | Yes
+| `observation` | What observation (encoded as a number) | Integer | Yes
+| `result` | The numerical value of the result | Real number | Yes
+|===
+
+Types of numerical observation are stored in the `numerical_observations_docs` table:
+
+[cols="1,1,1,1"]
+|===
+|Column name | Description | Type | Nullable
+
+| `observation` | The observation encoded as a number | Integer | No
+| `name` | The name of the observation | String | No
+| `docs` | An optional longer description of the observation | String | Yes
+| `unit` | The unit of the numerical observation, if applicable | String | Yes
+|===
